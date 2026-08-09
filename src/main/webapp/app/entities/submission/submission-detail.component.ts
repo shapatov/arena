@@ -24,6 +24,7 @@ export class SubmissionDetailComponent implements OnInit {
     securityKey: string;
     testDetails: any;
     submissionDetails: any;
+    isZip = false;
     tags = [];
     autocompleteTags: ITag[] = [];
     tagStatus = 0;
@@ -55,6 +56,7 @@ export class SubmissionDetailComponent implements OnInit {
                 }
                 this.parseTestDetails();
                 this.submissionId = this.submission.id;
+                this.isZip = res.body.isZip;
 
                 if (!this.isJudged(this.submission)) {
                     this.refreshInterval = setInterval(() => {
@@ -90,6 +92,20 @@ export class SubmissionDetailComponent implements OnInit {
                 (res: HttpResponse<ITag[]>) => (this.tags = res.body),
                 error => this.jhiAlertService.error(error.message, null, null)
             );
+    }
+
+    downloadZip() {
+        this.submissionService.downloadZip(this.submissionId, this.securityKey).subscribe(
+            res => {
+                const url = window.URL.createObjectURL(res.body);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `submission-${this.submissionId}.zip`;
+                link.click();
+                window.URL.revokeObjectURL(url);
+            },
+            (res: HttpErrorResponse) => this.jhiAlertService.error(res.message, null, null)
+        );
     }
 
     parseTestDetails() {
@@ -145,5 +161,43 @@ export class SubmissionDetailComponent implements OnInit {
 
     checkReason() {
         this.hasReason = this.testDetails.some(step => step.value.reason && step.value.reason.length > 0);
+    getColor(ratio) {
+        return ratio === 1
+            ? '#4E9A05'
+            : ratio > 0.9
+            ? '#639B04'
+            : ratio > 0.8
+            ? '#789C03'
+            : ratio > 0.7
+            ? '#8E9D02'
+            : ratio > 0.6
+            ? '#A39E01'
+            : ratio > 0.5
+            ? '#B99F00'
+            : ratio > 0.4
+            ? '#C89100'
+            : ratio > 0.3
+            ? '#D17400'
+            : ratio > 0.2
+            ? '#D95700'
+            : ratio > 0.1
+            ? '#E23A00'
+            : ratio > 0
+            ? '#EB1D00'
+            : ratio === 0
+            ? '#F40000'
+            : '#FFFFFF';
+    }
+
+    getTextColor(ratio) {
+        return ratio < 0.4 ? '#FFFFFF' : '#000000';
+    }
+
+    getFontWeight(ratio) {
+        return ratio < 0.3 ? 'bold' : 'normal';
+    }
+
+    checkReason() {
+        this.hasReason = this.testDetails.some(step => step.value.reason.length > 0);
     }
 }
