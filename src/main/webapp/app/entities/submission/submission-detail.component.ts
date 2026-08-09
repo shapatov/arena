@@ -159,6 +159,8 @@ export class SubmissionDetailComponent implements OnInit {
         );
     }
 
+    checkReason() {
+        this.hasReason = this.testDetails.some(step => step.value.reason && step.value.reason.length > 0);
     getColor(ratio) {
         return ratio === 1
             ? '#4E9A05'
