@@ -28,6 +28,7 @@ export class SubmissionDetailComponent implements OnInit {
     autocompleteTags: ITag[] = [];
     tagStatus = 0;
     tagStatusTimeout;
+    hasReason = false;
     Math = Math; // Make the Math library visible in html
 
     constructor(
@@ -115,6 +116,8 @@ export class SubmissionDetailComponent implements OnInit {
                 break;
             }
         }
+
+        this.checkReason();
     }
 
     isJudged(submission: ISubmission): boolean {
@@ -138,5 +141,9 @@ export class SubmissionDetailComponent implements OnInit {
             },
             err => (this.tagStatus = 3)
         );
+    }
+
+    checkReason() {
+        this.hasReason = this.testDetails.some(step => step.value.reason.length > 0);
     }
 }
